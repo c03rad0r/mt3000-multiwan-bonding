@@ -50,6 +50,8 @@ Resume order:
 2. Acquire `gl-mt3000`; confirm `192.168.50.205` answers.
 3. Read `/root/lab-uplinks.sh` (written before the outage) and verify the two
    STA sections associated, got `wwan`/`wwan2` addresses, and have internet.
+   The script stops `/etc/init.d/tollgate-wrt` first so the single-STA manager
+   cannot dismantle the manual pair; restart it before product-path testing.
 4. Install the PR-branch build, then run the MPTCP proof.
 5. Only after that, plan the `tollgate-76aa` upgrade.
 
