@@ -82,6 +82,7 @@ All against [`OpenTollGate/tollgate-module-basic-go`](https://github.com/OpenTol
 | [#1258](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1258) | NDS-aware steering (no pre-auth bypass) |
 | [#1253](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1253) | automatic captive-portal login |
 | [#1259](https://github.com/OpenTollGate/tollgate-module-basic-go/issues/1259) | design: two concurrent STA uplinks |
+| [#1260](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1260) | MT3000 hardware/CVE/two-STA documentation |
 
 See [`docs/TOLLGATE-GAPS.md`](docs/TOLLGATE-GAPS.md) for the code references
 and why each gap matters.
