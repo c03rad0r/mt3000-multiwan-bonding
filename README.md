@@ -1,0 +1,113 @@
+# mt3000-multiwan-bonding
+
+Reproducible multi-WAN **MPTCP bonding on the GL.iNet GL-MT3000** (Beryl AX,
+MediaTek MT7981B), intended for a TollGate whose uplinks are a 2.4 GHz mobile
+hotspot and an open 5 GHz hotel guest network.
+
+This repository records **what actually works, what does not, and which parts
+are still missing upstream**. It is deliberately a status document first and an
+automation repository second: the lab was partially brought up, the software
+gaps were found by reading the production code, and the remaining runs are
+blocked on lab access.
+
+## Target topology
+
+```text
+mobile hotspot (2.4 GHz, ch5) ─┐
+                               ├─ GL-MT3000 (TollGate) ─ guests
+hotel guest WiFi (5 GHz, ch36) ┘
+```
+
+The MT3000 has two radios and one AP+STA channel per radio, so the only
+workable layout is:
+
+```text
+radio0 (2.4 GHz): APs on ch5   + STA to the hotspot (ch5)
+radio1 (5 GHz):   APs on ch36  + STA to the hotel guest (ch36)
+```
+
+The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
+`gl-mt3000` labgrid place on x280 (192.168.50.205).
+
+## Status (2026-11-22)
+
+### Works
+
+| Capability | Evidence |
+|---|---|
+| Labgrid place `gl-mt3000` acquire/release | `labgrid-client -p gl-mt3000 acquire` on x280 |
+| Device inventory | OpenWrt 25.12.5, kernel 6.12.94, TollGate v0.6.0 at start |
+| Backup and off-device copy | `/etc/tollgate`, `/etc/config`, package list, sha256; 1.5 MB |
+| Upgrade to OpenWrt 25.12.6 | kernel 6.12.112, config preserved, uptime verified |
+| Build TollGate from `main` (v0.6.0-rc4) | `tollgate-wrt-0.6.0_rc4-r0.apk`, sha256 `15e41df2…` |
+| Install the test APK | `tollgate version` = v0.6.0-rc4, commit 959280db |
+| MPTCP kernel present | `net.mptcp.enabled=1` |
+| `ip-full` present | `ip mptcp limits` returns `add_addr_accepted 0 subflows 2` |
+| Proxy/runtime packages | `xray-core`, `kmod-wireguard`, `wireguard-tools`, `mptcpize` installed |
+| Hotel guest visible from production device | 5 GHz ch36, about -78 dBm, open |
+| Hotspot visible from production device | 2.4 GHz ch5, about -42 dBm, WPA2/WPA3 transition |
+
+### Does not work / not yet verified
+
+| Item | Why |
+|---|---|
+| Two simultaneous STA uplinks through the product | The upstream manager is single-STA (`disableOtherSTAInterfaces`, `CleanupStaleSTAs`, one `wwan`). Manual UCI was written, but association/DHCP verification was blocked by the lab outage. |
+| Guest traffic entering the bond | No NDS-aware steering existed in `main`; PR #1258 implements it, not merged/tested. |
+| Per-uplink policy routing | Missing in `main`; PR #1254 implements it, not merged/tested. |
+| NAT-safe transport through `tollgate config` | `transport`/`tunnels` were not exposed; PR #1255 fixes it, not merged. |
+| `ip-full` on a stock install | Not declared in the package; PR #1256 fixes it, not merged. |
+| Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login, not merged/tested against the real portal. |
+| Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
+| Real hotel/hotspot bond | MT3000 cannot see either AP from its lab position; the real RF test must run on `tollgate-76aa`. |
+| Production install | Not attempted; lab proof and PR review are prerequisites. |
+
+### Lab blocker
+
+At about 00:30 on 2026-11-22 the x280 FIPS link and the MT3000 behind it
+stopped answering. `tollgate-76aa` is still reachable on 192.168.2.1, but it
+cannot reach the MT6000 (192.168.2.2) or the MT3000. No code or device change
+caused this; the lab path is down. The resume procedure is in
+[`docs/ACCESS.md`](docs/ACCESS.md).
+
+## Upstream gaps and PRs
+
+All against [`OpenTollGate/tollgate-module-basic-go`](https://github.com/OpenTollGate/tollgate-module-basic-go):
+
+| PR / issue | What it changes |
+|---|---|
+| [#1257](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1257) | policy enum `all` (was `always` in schema) |
+| [#1256](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1256) | declare `ip-full`; apk/opkg runbook |
+| [#1255](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1255) | expose `transport` and `tunnels` in config |
+| [#1254](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1254) | per-uplink policy routing + disable flush |
+| [#1258](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1258) | NDS-aware steering (no pre-auth bypass) |
+| [#1253](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1253) | automatic captive-portal login |
+| [#1259](https://github.com/OpenTollGate/tollgate-module-basic-go/issues/1259) | design: two concurrent STA uplinks |
+
+See [`docs/TOLLGATE-GAPS.md`](docs/TOLLGATE-GAPS.md) for the code references
+and why each gap matters.
+
+## Safety
+
+- 25.12.6 ships kernel **6.12.112**, still below the CVE-2026-98432 fix floor
+  (6.12.113). The lab is isolated; the production hotel device needs a patched
+  kernel or an explicit risk decision.
+- No WiFi PSKs, portal passwords, wallet seeds, or Cashu tokens are stored in
+  this repository. Device backups stay off-repo.
+- The production device's wallet was 0 sats at inspection.
+
+## Repository layout
+
+```text
+docs/TOPOLOGY.md        radio/channel plan and AP+STA constraints
+docs/TOLLGATE-GAPS.md   what is missing upstream, with code references
+docs/ACCESS.md          labgrid/SSH access and the resume procedure
+docs/MEASUREMENTS.md    throughput/failover record (empty until lab returns)
+ansible/                provisioning skeleton (not yet run)
+scripts/                verification/measurement helpers
+evidence/               sanitized logs and command output
+```
+
+## Licence
+
+MIT for this repository. The TollGate module is GPL-3.0; xray-core is MPL-2.0;
+kernel MPTCP and iproute2 are upstream.

@@ -1,0 +1,37 @@
+# Upstream gaps in `tollgate-module-basic-go`
+
+Repository: <https://github.com/OpenTollGate/tollgate-module-basic-go>
+Baseline inspected: `main` @ `959280db` (v0.6.0-rc4).
+
+| Gap | Code reference | Consequence on MT3000 | PR / issue |
+|---|---|---|---|
+| Schema/bond policy mismatch | `src/config_manager/config_schema.go` advertises `always`; `src/mptcp_bonding/config.go` validates `all` | `policy=all` cannot be set; `policy=always` fails at bond load | #1257 |
+| `ip-full` not a dependency | `packaging/Makefile` DEPENDS; runbook said `opkg` only | BusyBox `ip` has no `mptcp`; bond apply fails on a stock image | #1256 |
+| `transport`/`tunnels` not configurable | `MPTCPBondingConfig` and schema lacked both; `main.bondConfigJSON` marshals the typed struct | NAT-safe `proxy-terminated` shape unreachable through the CLI | #1255 |
+| No non-tunnel policy routing | `mptcp_bonding.EndpointPlan` only adds endpoints; `TunnelRoutingScript` covers tunnels only | Second subflow can follow the primary default route and be dropped | #1254 |
+| No guest steering | `ShouldSteer` had no non-test consumer; #972/#974 call steering future work | Bond exists but guest traffic never enters it | #1258 |
+| Naive steering would bypass payment | NDS marks are in `packaging/files/etc/nftables.d/20-nds-enforce.nft`; a CIDR-only rule ignores them | Pre-auth guest traffic would be a free tunnel | #1258 |
+| No captive-portal auto-login | `src/wireless_gateway_manager/portal_login.go` only opens a 2-minute human window | Unattended router cannot pass a hotel portal; bond never forms | #1253 |
+| Single-STA manager | `Connector.Connect` calls `disableOtherSTAInterfaces`; `CleanupStaleSTAs` disables non-active STAs; both `tollgate_sta_2g/5g` use `network=wwan` | Two simultaneous uplinks are dismantled; no product-path 2.4+5 bond | #1259 |
+| Released build predates MPTCP | tag `v0.6.0` has no `src/mptcp_bonding`; `main` is 177 commits ahead | The installed v0.6.0 cannot bond at all | n/a — use a main build |
+| Kernel CVE floor | #1159: fix starts at 6.12.113; 25.12.5=6.12.94, 25.12.6=6.12.112 | MPTCP listener exposure on an untrusted hotel network | production decision |
+
+## What is already merged on `main`
+
+- `src/mptcp_bonding`: config validation, endpoint plan, limits, idempotent
+  apply, disable flush, interface-event reconciler.
+- `proxy-terminated` transport (#1009).
+- Per-uplink WireGuard tunnel renderers (plan/routing/firewall).
+- Multi-WAN objectives + mwan3 applier (#1124/#1126/#1127) — a different,
+  per-flow engine, not MPTCP aggregation.
+- Disjointness preflight and counter scripts.
+- Boot wiring through `applyBondConfig`.
+
+## What is still needed for the product path
+
+1. Merge/rebase #1254, #1255, #1256, #1257, #1258, #1253.
+2. Implement #1259 (multi-STA) or accept a manual two-STA configuration that
+   the manager does not dismantle.
+3. Add `kmod-nft-tproxy` as a runtime prerequisite for steering.
+4. Add an xray/proxy lifecycle (or document the operator-supplied proxy).
+5. Add the MT3000 hardware/CVE runbook (#H, not yet filed).
