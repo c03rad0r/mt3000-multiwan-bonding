@@ -6,9 +6,9 @@ hotspot and an open 5 GHz hotel guest network.
 
 This repository records **what actually works, what does not, and which parts
 are still missing upstream**. It is deliberately a status document first and an
-automation repository second: the lab was partially brought up, the software
-gaps were found by reading the production code, and the remaining runs are
-blocked on lab access.
+automation repository second. The lab was partially brought up, the production
+device was upgraded to the rc6 integration build, and the remaining bond test
+is blocked on the ASK4 portal flow and the MPTCP server credential.
 
 ## Target topology
 
@@ -48,6 +48,8 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | Hotel association + DHCP | `10.32.77.42/20`, gateway/DNS `10.32.64.1` |
 | ASK4 portal identified | `gw.customer.ask4.lan:3145/redirect.php`; no-field click-through → sign-up page (see [`docs/ASK4-PORTAL.md`](docs/ASK4-PORTAL.md)) |
 | Hotspot visible from production device | 2.4 GHz ch5, about -42 dBm, WPA2/WPA3 transition |
+| Production `tollgate-76aa` on rc6 | `0.6.0-rc6`, commit `a4c2462b`; wallet 0 sats |
+| Production internet via `c03rad0r` | `sae-mixed`, 10.110.131.142, gateway 10.110.131.143 |
 
 ### Does not work / not yet verified
 
@@ -60,8 +62,9 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | `ip-full` on a stock install | Not declared in the package; PR #1256 fixes it, not merged. |
 | Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login plus the ASK4 `SO_MARK`/venue-DNS fixes, not merged/tested against the real portal. The portal page capture was blocked by hotel beacon loss. |
 | Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
-| Real hotel/hotspot bond | MT3000 cannot see either AP from its lab position; the real RF test must run on `tollgate-76aa`. |
-| Production install | Not attempted; lab proof and PR review are prerequisites. |
+| Real hotel/hotspot bond | Production has both radios/uplinks, but the ASK4 portal still needs a guest/existing-account flow and the MPTCP server credential; no two-subflow test has run yet. |
+| ASK4 authorization | The no-field click-through lands on the sign-up page; `/en/speed`, `/en/existing-customer`, `/en/guest-signup` returned 404 without the portal session. |
+| Production bonding enabled | rc6 is installed with bonding disabled; the working uplink is `c03rad0r`. |
 
 ### Lab blocker
 

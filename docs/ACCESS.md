@@ -55,6 +55,17 @@ Resume order:
 4. Install the PR-branch build, then run the MPTCP proof.
 5. Only after that, plan the `tollgate-76aa` upgrade.
 
+## Current production state (2026-11-22)
+
+- `tollgate-76aa`: OpenWrt 25.12.5, TollGate **0.6.0-rc6** (commit `a4c2462b`),
+  wallet 0 sats.
+- Uplink: `c03rad0r` on radio0, **`sae-mixed`** (WPA2 `psk2` gave
+  `WRONG_KEY`), address `10.110.131.142`, internet verified.
+- Bonding: **disabled**. Single-uplink state restored after the hotel dry run.
+- ASK4: `gw.customer.ask4.lan:3145/redirect.php`; auto-login disabled until the
+  guest/existing-account flow is known.
+- Rollback: `/root/rollback/` on the device, `/var/tmp/tg76aa-backup/` on T14.
+
 ## Known-good artifacts
 
 | Artifact | Path / hash |
