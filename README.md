@@ -53,7 +53,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | ASK4 guest login | `/en/guest-signup` first/last name → hotel site; hotel STA MAC then had internet (public IP 31.205.35.59) |
 | MPTCP second-path mechanism | manual endpoints + metrics 10/20 + per-source routes → hotel `SF_ESTABLISHED` against an MPTCP echo server |
 | **Controlled two-path bond** | VLESS/BSBF xray `:16384` + `tcpMPTCP`; both subflows `SF_ESTABLISHED`; 4 MB at ~37.7 Mbit/s; hotel carried ~4.13 MB, c03rad0r ~159 KB (see [`docs/MPTCP-BONDING-TEST.md`](docs/MPTCP-BONDING-TEST.md)) |
-| Persistent production bond | **enabled** on rc8: radio1 dedicated to the hotel STA, 5 GHz APs disabled; both subflows after hotel re-auth; survived reboot; local portal watcher re-auths ASK4 |
+| Persistent production bond | **enabled** on rc8: radio1 dedicated to the hotel STA, 5 GHz APs disabled; both subflows after hotel re-auth; survived reboot; a cron check re-auths ASK4 |
 
 ### Does not work / not yet verified
 
