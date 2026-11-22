@@ -57,33 +57,36 @@ tollgate config set upstream_wifi.portal_login_mark=0x20000
 The redirect page is a `GET` form with **no named fields** (“Continue online”).
 PR #1253 now accepts that shape and submits the action with an empty query.
 
-That alone is **not authorization**: it lands on the ASK4 sign-up page
-(`ASK4 - Sign up`) with three paths:
+The sign-up page has three paths:
 
-| Path | Link |
+| Path | Result |
 |---|---|
-| Create Account | `/en/speed` |
-| Already Signed Up | `/en/existing-customer` |
-| Guest Login | `/en/guest-signup` |
+| Create Account `/en/speed` | HTTP 500 in the probe |
+| Already Signed Up `/en/existing-customer` | redirects to `https://myaccount.ask4.com/?maccheck=1&mac=<sta-mac>` |
+| Guest Login `/en/guest-signup` | **200**, 65 KB form; this is the working path |
 
-Direct requests to those paths returned HTTP 404 in the probe, so the portal
-expects a session/cookie or a different flow than a plain GET. A guest login
-recipe (voucher/room/name) or an existing ASK4 account is still needed. The
-engine's `form` mode can carry those fields once the endpoint is known; the
-`click_through` recipe above is the measured first step.
+The guest form asks for **first name + surname + CSRF token** only. Posting it
+redirects to `https://pendulumhotel.co.uk/`, and the same STA MAC then has
+internet (`ifconfig.me` = 31.205.35.59). **No email, room number, password, or
+email verification was used.** A persistent ASK4 account was not created; this
+is a guest/MAC session.
+
+A per-uplink HTTP client and a session cookie from the hotel path are still
+required for full automation (the signup host rejects non-hotel clients with
+`/en/wrong-network`).
 
 ## What was captured
 
 - `/redirect.php` (port 3145) → 1369-byte page with the no-field GET form.
-- Submitting the action `GET /` in one probe returned the 99542-byte
-  `ASK4 - Sign up` page with three options and the device MAC in the help
-  modal; in a later probe the same request returned
-  `302 Location: https://signup.ask4.com`.
+- Submitting the action `GET /` returned the 99542-byte `ASK4 - Sign up` page
+  (or `302 Location: https://signup.ask4.com` depending on the probe).
 - `https://signup.ask4.com` is the real signup host. Fetched from a non-hotel
   client it redirects to `/en/wrong-network`; it only serves the form when the
   request originates from the hotel uplink.
-- `/en/speed`, `/en/existing-customer`, `/en/guest-signup` on the portal host
-  returned HTTP 404 without the portal session.
+- `/en/guest-signup` with the hotel session returned the 65 KB first/last-name
+  form; the POST authorized the MAC and redirected to the hotel site.
+- `/en/speed` returned HTTP 500; `/en/existing-customer` went to
+  `myaccount.ask4.com` with `maccheck=1`.
 
 ## Consequence for the auto-login engine
 
@@ -101,7 +104,10 @@ not sufficient for ASK4. The next change needs:
 - a per-uplink HTTP client (bind/route through the target STA) for both the
   portal page and the signup site.
 
-This is why production auto-login is disabled and the bond is not enabled yet.
+The working guest recipe is simple once bound to the hotel STA: GET the
+redirect page, submit the POST to `/en/guest-signup` with configured first and
+last name, then re-probe. This is why production auto-login is disabled and the
+bond is not persistently enabled yet.
 
 ## Operational note
 
