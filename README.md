@@ -93,7 +93,8 @@ and why each gap matters.
 
 All seven PRs are merged with conflicts resolved on
 `c03rad0r/tollgate-module-basic-go` branch `integration/mt3000-bond`
-(commit `c6fa663a`). Combined test gate:
+(commit `a4c2462b`, including the ASK4 `SO_MARK`/venue-DNS fix). Combined test
+gate:
 
 ```text
 config_manager        ok
@@ -106,8 +107,8 @@ packaging fences       7 passed / 34 passed
 Installable test artifact (not yet installed; lab offline):
 
 ```text
-tollgate-wrt-0.6.0_rc5-r0.apk
-sha256 7293f96caddba87aca4e0fa1f4dfb90eeaea8aacdf3d0edee1b0b752bb788458
+tollgate-wrt-0.6.0_rc6-r0.apk
+sha256 86c2a1736263c3f654fcc2e8b20de347fd6b6782bce5d812a7cfb04e47d19414
 ```
 
 The branch is for integration testing only; the reviewable units remain the

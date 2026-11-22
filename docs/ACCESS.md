@@ -63,5 +63,5 @@ Resume order:
 | `etc-tollgate.tgz` sha256 | `d184f65d0b92b2429acf2a930aab7f5a426ca7ca62677f916b259d73bbc84873` |
 | `etc-config.tgz` sha256 | `2942f35aa10ea5f7fe6b20c77e18b6bf48495d4e3bc6fbe8f6fea6da98928c2c` |
 | Main-only test APK | `tollgate-wrt-0.6.0_rc4-r0.apk` sha256 `15e41df24b2ffe552c449477907ab91f46ad93b694149006df179df7bfd88fdd` |
-| Integration APK (all seven PRs) | `tollgate-wrt-0.6.0_rc5-r0.apk` sha256 `7293f96caddba87aca4e0fa1f4dfb90eeaea8aacdf3d0edee1b0b752bb788458` |
+| Integration APK (all seven PRs + ASK4 fix) | `tollgate-wrt-0.6.0_rc6-r0.apk` sha256 `86c2a1736263c3f654fcc2e8b20de347fd6b6782bce5d812a7cfb04e47d19414` |
 | Firmware image | `openwrt-25.12.6-…glinet_gl-mt3000-squashfs-sysupgrade.bin` sha256 `c2965b9d49d2ff42bf00c4f04ef73eaae904f553c68af47332fec702b30bf6f4` |
