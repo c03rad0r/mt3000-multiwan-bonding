@@ -95,7 +95,7 @@ All against [`OpenTollGate/tollgate-module-basic-go`](https://github.com/OpenTol
 | [#1255](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1255) | expose `transport` and `tunnels` in config |
 | [#1254](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1254) | per-uplink policy routing + disable flush |
 | [#1258](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1258) | NDS-aware steering (no pre-auth bypass) |
-| [#1253](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1253) | automatic captive-portal login; uplink-scoped with allow-list, cookie jar, watcher, session budget, and CLI redaction for the portal secrets |
+| [#1253](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1253) | automatic captive-portal login; uplink-scoped with allow-list, cookie jar, watcher, session budget, CLI secret redaction, and a Go multi-step recipe engine |
 | [#1261](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1261) | protect bonded STA sections from the single-STA manager |
 | [#1262](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1262) | pass the uplink address (not the gateway) to the bond |
 | [#1263](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1263) | periodic bond drift reapply (`reconcile_interval_s`) |
