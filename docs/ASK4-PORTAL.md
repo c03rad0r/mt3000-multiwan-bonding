@@ -75,10 +75,33 @@ engine's `form` mode can carry those fields once the endpoint is known; the
 ## What was captured
 
 - `/redirect.php` (port 3145) → 1369-byte page with the no-field GET form.
-- Submitting the action `GET /` → 99542-byte `ASK4 - Sign up` page with the
-  three options and the device MAC in the help modal.
-- `/en/speed`, `/en/existing-customer`, `/en/guest-signup` → HTTP 404 from the
-  same host without the portal session.
+- Submitting the action `GET /` in one probe returned the 99542-byte
+  `ASK4 - Sign up` page with three options and the device MAC in the help
+  modal; in a later probe the same request returned
+  `302 Location: https://signup.ask4.com`.
+- `https://signup.ask4.com` is the real signup host. Fetched from a non-hotel
+  client it redirects to `/en/wrong-network`; it only serves the form when the
+  request originates from the hotel uplink.
+- `/en/speed`, `/en/existing-customer`, `/en/guest-signup` on the portal host
+  returned HTTP 404 without the portal session.
+
+## Consequence for the auto-login engine
+
+The ASK4 flow is **not** a same-host click-through:
+
+1. It redirects to an external host (`signup.ask4.com`).
+2. That host validates the client's hotel-side public IP, so the HTTPS request
+   must leave through the **hotel STA**, not the default uplink.
+3. It needs the guest/existing-account form, which is only served to the hotel
+   client.
+
+PR #1253's current same-host guard and default-route HTTP client are therefore
+not sufficient for ASK4. The next change needs:
+- a configured allow-list for external portal hosts (never arbitrary), and
+- a per-uplink HTTP client (bind/route through the target STA) for both the
+  portal page and the signup site.
+
+This is why production auto-login is disabled and the bond is not enabled yet.
 
 ## Operational note
 

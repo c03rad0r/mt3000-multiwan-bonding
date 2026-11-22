@@ -63,7 +63,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login plus the ASK4 `SO_MARK`/venue-DNS fixes, not merged/tested against the real portal. The portal page capture was blocked by hotel beacon loss. |
 | Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
 | Real hotel/hotspot bond | Production has both radios/uplinks, but the ASK4 portal still needs a guest/existing-account flow and the MPTCP server credential; no two-subflow test has run yet. |
-| ASK4 authorization | The no-field click-through lands on the sign-up page; `/en/speed`, `/en/existing-customer`, `/en/guest-signup` returned 404 without the portal session. |
+| ASK4 authorization | The portal redirects to `https://signup.ask4.com`, which serves `/en/wrong-network` unless the request comes from the hotel uplink. It needs a guest/existing-account form and a per-uplink HTTP client; direct subpage GETs on the portal host returned 404. |
 | Production bonding enabled | rc6 is installed with bonding disabled; the working uplink is `c03rad0r`. |
 
 ### Lab blocker
