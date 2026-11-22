@@ -87,3 +87,23 @@ Consequences:
 3. **No identity rotation.** The free session is one authorized session. When
    it expires, the correct behaviour is to drop the uplink and fall back, or use
    the airport's paid plan; not to rotate a MAC or the node key.
+
+## rc12 field attempt (2026-11-22)
+
+rc12 was built with the Go multi-step engine, the built-in `man-purple-free` /
+`ask4-guest` recipes, and the watcher moved before mint-dependent merchant
+construction.
+
+The install did not return the management path: `192.168.2.1` and the
+MT3000 APs disappeared during the post-install network restart, and the device
+has not answered since. A **physical power-cycle or console access is required**
+before the next attempt. No field success is claimed for the recipe; the engine
+and the Purple shape are verified only against the mock portal.
+
+The device carried the prepared config before the install:
+
+- `consent_manifest: [{match: "_FreeWifi", consent: "pre-accepted", recipe: "man-purple-free"}]`
+- `portal_login_recipes: [{interface: "phy1-sta0", recipe: "man-purple-free", url: "http://1.1.1.1/?cmd=redirect&arubalp=12345", username: <operator email>, allow_hosts: ["purpleportal.net","10.234.240.41"], dns: "103.247.36.36", budget_seconds: 7200, budget_bytes: 2000000000}]`
+
+Backups on the device: `/root/rollback-rc9/` and
+`/root/config.before-rc11-recipe.json`.
