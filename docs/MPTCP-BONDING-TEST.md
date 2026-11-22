@@ -186,7 +186,10 @@ Remaining caveats:
   the TollGate per-uplink portal code;
 - the `mptcp_bonding` uplink addresses/gateways are static; a DHCP change needs
   a config update/reconcile;
-- guest TPROXY steering is installed but not yet exercised by a real guest.
+- guest TPROXY steering is installed (`mptcp_steer` chain, TPROXY `:1082`,
+  `fwmark 0x1`→table 100), but not yet exercised by a real guest. A synthetic
+  veth-on-`br-tollgate` test was attempted and blocked because this OpenWrt
+  image has no `veth` device type (`Error: Unknown device type`).
 
 ## Next changes needed
 

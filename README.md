@@ -66,7 +66,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | `ip-full` on a stock install | Not declared in the package; PR #1256 fixes it, not merged. |
 | Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login plus the ASK4 `SO_MARK`/venue-DNS fixes, not merged/tested against the real portal. The portal page capture was blocked by hotel beacon loss. |
 | Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
-| Persistent bond caveats | The client uses the server’s static VLESS UUID (not a paid session); the ASK4 first/last-name login is replayed by a local watcher, not the upstream per-uplink portal code; uplink addresses/gateways are static; guest TPROXY steering is installed but not yet exercised by a real guest. |
+| Persistent bond caveats | The client uses the server’s static VLESS UUID (not a paid session); the ASK4 first/last-name login is replayed by a local watcher, not the upstream per-uplink portal code; uplink addresses/gateways are static; guest TPROXY steering is installed (`mptcp_steer`, :1082) but not yet exercised by a real guest (the image has no `veth` for a synthetic test). |
 | ASK4 persistent account | The guest login authorized the MAC with just first/last name; no persistent ASK4 account/email verification was created. The `Create Account` path (`/en/speed`) returned HTTP 500. |
 | `bsbf-mptcp` helper | Calls `ip mp e a ...`, which fails on ip-full 6.18; manual `ip mptcp endpoint add` works. |
 | Production bonding enabled | rc6 is installed with bonding disabled; the working uplink is `c03rad0r`. |
