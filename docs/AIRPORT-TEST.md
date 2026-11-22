@@ -40,6 +40,10 @@ uplink. A multi-step recipe engine is the next portal feature (see below).
 ## Result
 
 - Airport uplink verified: `https://ifconfig.me/` returned `62.233.55.124`.
+- The path itself supports MPTCP: `mptcpize run curl -4
+  http://check.mptcp.dev/` returned “You are using MPTCP.”, while plain
+  `curl` returned “You are not using MPTCP.” So the airport is not blocking
+  MPTCP; it is blocking the specific server.
 - The default route is `10.250.73.254` on `phy1-sta0` (metric 10).
 - The device serves its APs while using this uplink.
 - The free session is **2 hours / 2 GB**; it is not re-created by rotating
