@@ -87,6 +87,30 @@ All against [`OpenTollGate/tollgate-module-basic-go`](https://github.com/OpenTol
 See [`docs/TOLLGATE-GAPS.md`](docs/TOLLGATE-GAPS.md) for the code references
 and why each gap matters.
 
+### Combined integration branch
+
+All seven PRs are merged with conflicts resolved on
+`c03rad0r/tollgate-module-basic-go` branch `integration/mt3000-bond`
+(commit `c6fa663a`). Combined test gate:
+
+```text
+config_manager        ok
+mptcp_bonding         ok
+portal targeted tests ok
+root build             ok
+packaging fences       7 passed / 34 passed
+```
+
+Installable test artifact (not yet installed; lab offline):
+
+```text
+tollgate-wrt-0.6.0_rc5-r0.apk
+sha256 7293f96caddba87aca4e0fa1f4dfb90eeaea8aacdf3d0edee1b0b752bb788458
+```
+
+The branch is for integration testing only; the reviewable units remain the
+seven PRs above.
+
 ## Safety
 
 - 25.12.6 ships kernel **6.12.112**, still below the CVE-2026-98432 fix floor
