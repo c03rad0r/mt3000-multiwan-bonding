@@ -123,6 +123,38 @@ Why the SS path failed:
 Temporary listeners (AEAD `:65102`, echo `:65102`) and their keys were removed
 after the test. Production is back on the single c03rad0r uplink, bond disabled.
 
+## Persistent rollout attempt (rc8, 2026-11-22)
+
+The module path was then configured on production with:
+
+- `upstream_wifi.bonded_sta_names=["hotel_sta"]` (PR #1261 guard);
+- `mptcp_bonding` enabled, proxy-terminated, uplinks with static
+  address/gateway, metrics 10/11, `subflow fullmesh`;
+- a VLESS TPROXY client service and `10.255.0.1` DNAT.
+
+It **did** apply the uplink bond: both endpoints (`subflow fullmesh`), main
+defaults metric 10/11, per-source tables/rules, and a SOCKS VLESS transfer at
+~4.3 MB/s. So the module path works for the uplink.
+
+It was **not stable enough to leave enabled**:
+
+1. **Hotel STA roamed to ch108 (DFS)** while radio1’s AP stayed ch36. The
+   MT3000 AP+STA rule requires the same channel on one radio. Need channel
+   follow/ACS on the AP, or a fixed BSSID/channel and an AP that matches.
+2. **Interface rename during network restart** left an endpoint on a transient
+   `if539` while c03rad0r was `phy0-sta0`. The module applied while the netdev
+   was being renamed; a later reconcile needs the settled name/ifindex.
+3. **DHCP reasserted c03rad0r metric 0** after the network restart, replacing
+   the module’s metric-10 default. A route watcher/reapply is needed.
+4. **Steering chain not loaded** in this run (`mptcp_steer` absent). The
+   BusyBox-`paste` failure is fixed in rc8, but the apply result still needs a
+   dedicated test with `fw4`/nft.
+5. The xray TPROXY inbound (1082) and VLESS DNAT were running, but guest
+   steering was never exercised end-to-end.
+
+Production was restored to the stable **c03rad0r-only** state. rc8 remains
+installed; `mptcp_bonding` is disabled; wallet 0 sats.
+
 ## Next changes needed
 
 1. Productize the VLESS/BSBF transport: per-client VLESS UUID from the paid
