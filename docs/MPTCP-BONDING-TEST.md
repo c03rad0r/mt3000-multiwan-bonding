@@ -172,7 +172,7 @@ endpoints, metrics 10/11, the `mptcp_steer` chain, xray, and internet; the
 post-reboot transfer fell back to c03rad0r until the hotel portal was
 re-authenticated, then both paths carried payload again.
 
-A local `tollgate-hotel-portal` watcher checks the hotel path every 5 minutes
+A cron `tollgate-hotel-check` (every 5 minutes) checks the hotel path every 5 minutes
 and re-runs the ASK4 guest login when captive. This is a **local stopgap**; the
 per-uplink portal client belongs upstream in #1253.
 
