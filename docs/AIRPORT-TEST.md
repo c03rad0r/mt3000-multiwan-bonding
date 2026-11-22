@@ -1,9 +1,14 @@
 # Manchester Airport captive-portal test (2026-11-22)
 
 Device: `tollgate-76aa`, OpenWrt 25.12.5, TollGate **0.6.0-rc9** (`eb879697`).
-Uplink: `_FreeWifi` (open, 5 GHz, BSSID `08:18:14:AE:7C:A5`).
-Address: `10.250.77.84/23`; gateway `10.250.77.254`; DHCP DNS
+Uplink: `_FreeWifi` (open, 5 GHz, BSSID `08:18:14:B2:9A:65`).
+Address: `10.250.73.81/23`; gateway `10.250.73.254`; DHCP DNS
 `103.247.36.36`, `103.247.37.37`.
+
+The airport hands out a different /23 per AP: the first association was
+`10.250.77.84/23` on `08:18:14:AE:7C:A5`; after a roam the current lease is
+`10.250.73.81/23` on `08:18:14:B2:9A:65`. The bond config must be updated (or
+reconciled) when the lease changes.
 
 ## Portal flow
 
@@ -35,10 +40,19 @@ uplink. A multi-step recipe engine is the next portal feature (see below).
 ## Result
 
 - Airport uplink verified: `https://ifconfig.me/` returned `62.233.55.124`.
-- The default route is `10.250.77.254` on `phy1-sta0` (metric 10).
+- The default route is `10.250.73.254` on `phy1-sta0` (metric 10).
 - The device serves its APs while using this uplink.
 - The free session is **2 hours / 2 GB**; it is not re-created by rotating
   identity.
+
+### Re-auth after a roam
+
+After the STA roamed to a new BSSID the portal still showed the account's
+active free plan (“2 GB of 2 GB”, time remaining), but the new client was
+walled. The page's **Continue online** action is `GET /access/validate`; that
+returns the controller's `cmd=authenticate` URL. Following it (and its
+meta-refresh) authorized the new MAC/IP. This was the **same account and the
+same device**, not a new identity.
 
 ## Bond blocker on this network
 

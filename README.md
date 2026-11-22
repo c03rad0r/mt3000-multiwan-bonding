@@ -50,7 +50,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | Hotspot visible from production device | 2.4 GHz ch5, about -42 dBm, WPA2/WPA3 transition |
 | Production `tollgate-76aa` on rc9 | `0.6.0-rc9`, commit `eb879697`; wallet 0 sats |
 | Production internet via `c03rad0r` | `sae-mixed`, 10.110.131.142, gateway 10.110.131.143 (hotel test) |
-| Airport uplink `_FreeWifi` | Manchester Airport, 5 GHz, `10.250.77.84/23`, gateway `10.250.77.254`; Purple portal completed once; `ifconfig.me` = 62.233.55.124 |
+| Airport uplink `_FreeWifi` | Manchester Airport, 5 GHz, `10.250.73.81/23`, gateway `10.250.73.254`; Purple portal completed; `ifconfig.me` = 62.233.55.124 |
 | Airport free plan | MAG MAN FREE Wi-Fi, 2 hours / 2 GB / 7.5 Mbps; tied to the STA MAC `96:83:c4:8c:59:c2` |
 | Airport MPTCP server | **unreachable on every port**; two-path bond cannot form on this network (see [`docs/AIRPORT-TEST.md`](docs/AIRPORT-TEST.md)) |
 | ASK4 guest login | `/en/guest-signup` first/last name → hotel site; hotel STA MAC then had internet (public IP 31.205.35.59) |
