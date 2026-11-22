@@ -15,7 +15,9 @@ Baseline inspected: `main` @ `959280db` (v0.6.0-rc4).
 | NDS `ndsOUT` hides the venue portal | `iptables -t nat -L ndsOUT`: router-originated TCP/80 is DNATed to `192.168.99.1:2050` | Login request hits TollGate's own portal, never ASK4. Fixed by `SO_MARK=0x20000` in #1253. | #1253 |
 | Venue DNS not used | Router dnsmasq returned NXDOMAIN for `gw.customer.ask4.lan`; `10.32.64.1` resolves it | Portal host cannot be found on a multi-uplink box. Fixed by `portal_login_dns` in #1253. | #1253 |
 | Portal redirects to an external host | ASK4 redirects to `https://signup.ask4.com`, which serves `/en/wrong-network` unless the request comes from the hotel uplink | The same-host guard and default-route client cannot complete the flow. Needs a host allow-list + per-uplink HTTP client. | follow-up to #1253 |
-| No per-uplink portal login | The manager's portal path probes only the single active STA | A hotel STA that is not the default route is never logged in; bond uses a captive path. | #1259 + follow-up |
+| No per-uplink portal login | The manager's portal path probes only the single active STA | **Addressed in #1253**: `portal_login_recipes[]` binds `SO_BINDTODEVICE`/DNS/probe to the target netdev, with an allow-list and a bounded watcher. | #1253 |
+| Multi-step portals are not expressible | The recipe engine submits one form; Manchester Airport's Purple flow is redirect → email registration → plan selection → controller `cmd=authenticate` | A real airport/hotel portal cannot be automated with the current schema. Needs ordered steps, cookie continuity and an allow-list for `purpleportal.net` + the controller. | follow-up to #1253 |
+| Portal up != bond far end reachable | Manchester Airport allowed the portal and public web but timed out to `167.235.218.44` on every tested port | A bond member must check the far-end server before it is added; otherwise the second subflow silently has no peer. | follow-up |
 | No MPTCP-capable SS client path | xray rejects the server’s legacy `chacha20`; AEAD xray `tcpMPTCP` did not produce a second subflow for Shadowsocks | Legacy SS is not the bond transport. The working path is the server’s **VLESS/BSBF xray :16384** with `tcpMptcp`; per-client UUID provisioning is static today. | paid-server phase |
 | No paid VLESS session | Server advertises nothing; UUID configs are static files; no Cashu session or per-client credential issuance | A paid TollGate server needs kind-10021 ad + kind-1022 session + per-client VLESS UUID. | paid-server phase |
 | `bsbf-mptcp` helper alias | Helper runs `ip mp e a ...`, which fails on ip-full 6.18 | Endpoint table stays empty; manual `ip mptcp endpoint add` works. | external package fix |
@@ -41,9 +43,11 @@ Baseline inspected: `main` @ `959280db` (v0.6.0-rc4).
 
 ## What is still needed for the product path
 
-1. Merge/rebase #1254, #1255, #1256, #1257, #1258, #1253.
+1. Merge/rebase #1254, #1255, #1256, #1257, #1258, #1253, #1261, #1262.
 2. Implement #1259 (multi-STA) or accept a manual two-STA configuration that
    the manager does not dismantle.
-3. Add `kmod-nft-tproxy` as a runtime prerequisite for steering.
-4. Add an xray/proxy lifecycle (or document the operator-supplied proxy).
-5. Add the MT3000 hardware/CVE runbook (#H, not yet filed).
+3. Add a multi-step portal recipe engine (Purple/Aruba-style) and a far-end
+   reachability check before adding a bond member.
+4. Add `kmod-nft-tproxy` as a runtime prerequisite for steering.
+5. Add an xray/proxy lifecycle (or document the operator-supplied proxy).
+6. Add the MT3000 hardware/CVE runbook (#H, not yet filed).
