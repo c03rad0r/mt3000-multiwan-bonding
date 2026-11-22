@@ -99,6 +99,7 @@ All against [`OpenTollGate/tollgate-module-basic-go`](https://github.com/OpenTol
 | [#1261](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1261) | protect bonded STA sections from the single-STA manager |
 | [#1262](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1262) | pass the uplink address (not the gateway) to the bond |
 | [#1263](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1263) | periodic bond drift reapply (`reconcile_interval_s`) |
+| [#1264](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1264) | per-AP consent manifest before joining open upstreams |
 | [#1259](https://github.com/OpenTollGate/tollgate-module-basic-go/issues/1259) | design: two concurrent STA uplinks |
 | [#1260](https://github.com/OpenTollGate/tollgate-module-basic-go/pull/1260) | MT3000 hardware/CVE/two-STA documentation |
 
