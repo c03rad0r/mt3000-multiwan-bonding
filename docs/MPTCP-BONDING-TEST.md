@@ -152,8 +152,41 @@ It was **not stable enough to leave enabled**:
 5. The xray TPROXY inbound (1082) and VLESS DNAT were running, but guest
    steering was never exercised end-to-end.
 
-Production was restored to the stable **c03rad0r-only** state. rc8 remains
-installed; `mptcp_bonding` is disabled; wallet 0 sats.
+### Resolution: 5 GHz STA-only + hotel re-auth
+
+The channel collision was removed by **disabling the 5 GHz APs** and dedicating
+radio1 to the hotel STA. The 2.4 GHz APs stay on ch5 with the c03rad0r STA.
+The hotel can roam channels without an AP on that radio to match.
+
+After re-running the ASK4 guest login on the current BSSID, the persistent bond
+worked:
+
+```text
+[ SF_ESTABLISHED] saddr4=10.32.76.220 daddr4=10.255.0.1 ... ifindex=hotel
+[ SF_ESTABLISHED] saddr4=10.32.76.220 daddr4=10.255.0.1 ... ifindex=hotel
+down HTTP=200 SIZE=4000000 SPEED=3136723   (~25 Mbit/s)
+```
+
+RX deltas: hotel ~3.08 MB, c03rad0r ~1.21 MB. A reboot then restored both
+endpoints, metrics 10/11, the `mptcp_steer` chain, xray, and internet; the
+post-reboot transfer fell back to c03rad0r until the hotel portal was
+re-authenticated, then both paths carried payload again.
+
+A local `tollgate-hotel-portal` watcher checks the hotel path every 5 minutes
+and re-runs the ASK4 guest login when captive. This is a **local stopgap**; the
+per-uplink portal client belongs upstream in #1253.
+
+Current production: rc8, bond **enabled**, 5 GHz APs disabled, wallet 0 sats.
+
+Remaining caveats:
+
+- the client uses the server's **static per-client VLESS UUID**, not a paid
+  per-session credential;
+- the ASK4 guest form is first/last-name only and is replayed locally, not via
+  the TollGate per-uplink portal code;
+- the `mptcp_bonding` uplink addresses/gateways are static; a DHCP change needs
+  a config update/reconcile;
+- guest TPROXY steering is installed but not yet exercised by a real guest.
 
 ## Next changes needed
 

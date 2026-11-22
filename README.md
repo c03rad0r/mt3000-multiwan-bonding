@@ -53,7 +53,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | ASK4 guest login | `/en/guest-signup` first/last name → hotel site; hotel STA MAC then had internet (public IP 31.205.35.59) |
 | MPTCP second-path mechanism | manual endpoints + metrics 10/20 + per-source routes → hotel `SF_ESTABLISHED` against an MPTCP echo server |
 | **Controlled two-path bond** | VLESS/BSBF xray `:16384` + `tcpMPTCP`; both subflows `SF_ESTABLISHED`; 4 MB at ~37.7 Mbit/s; hotel carried ~4.13 MB, c03rad0r ~159 KB (see [`docs/MPTCP-BONDING-TEST.md`](docs/MPTCP-BONDING-TEST.md)) |
-| Persistent production bond | **not enabled**; the test restored the single c03rad0r uplink |
+| Persistent production bond | **enabled** on rc8: radio1 dedicated to the hotel STA, 5 GHz APs disabled; both subflows after hotel re-auth; survived reboot; local portal watcher re-auths ASK4 |
 
 ### Does not work / not yet verified
 
@@ -66,7 +66,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | `ip-full` on a stock install | Not declared in the package; PR #1256 fixes it, not merged. |
 | Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login plus the ASK4 `SO_MARK`/venue-DNS fixes, not merged/tested against the real portal. The portal page capture was blocked by hotel beacon loss. |
 | Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
-| Persistent hotel/hotspot bond | The rc8 module applied the fullmesh endpoints/metrics/policy and a SOCKS VLESS bond ran at ~4.3 MB/s, but the hotel STA roamed to ch108 while the AP stayed ch36, interface names/metrics churned on network restart, and the steering chain did not load. Production is back on c03rad0r only. |
+| Persistent bond caveats | The client uses the server’s static VLESS UUID (not a paid session); the ASK4 first/last-name login is replayed by a local watcher, not the upstream per-uplink portal code; uplink addresses/gateways are static; guest TPROXY steering is installed but not yet exercised by a real guest. |
 | ASK4 persistent account | The guest login authorized the MAC with just first/last name; no persistent ASK4 account/email verification was created. The `Create Account` path (`/en/speed`) returned HTTP 500. |
 | `bsbf-mptcp` helper | Calls `ip mp e a ...`, which fails on ip-full 6.18; manual `ip mptcp endpoint add` works. |
 | Production bonding enabled | rc6 is installed with bonding disabled; the working uplink is `c03rad0r`. |
