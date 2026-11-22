@@ -50,6 +50,9 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | Hotspot visible from production device | 2.4 GHz ch5, about -42 dBm, WPA2/WPA3 transition |
 | Production `tollgate-76aa` on rc6 | `0.6.0-rc6`, commit `a4c2462b`; wallet 0 sats |
 | Production internet via `c03rad0r` | `sae-mixed`, 10.110.131.142, gateway 10.110.131.143 |
+| ASK4 guest login | `/en/guest-signup` first/last name → hotel site; hotel STA MAC then had internet (public IP 31.205.35.59) |
+| MPTCP second-path mechanism | manual endpoints + metrics 10/20 + per-source routes → hotel `SF_ESTABLISHED` against an MPTCP echo server |
+| Full payload bond | **not yet** — xray/Shadowsocks 4 MB transfer stayed on c03rad0r (see [`docs/MPTCP-BONDING-TEST.md`](docs/MPTCP-BONDING-TEST.md)) |
 
 ### Does not work / not yet verified
 
@@ -62,8 +65,9 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | `ip-full` on a stock install | Not declared in the package; PR #1256 fixes it, not merged. |
 | Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login plus the ASK4 `SO_MARK`/venue-DNS fixes, not merged/tested against the real portal. The portal page capture was blocked by hotel beacon loss. |
 | Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
-| Real hotel/hotspot bond | Production has both radios/uplinks, but the ASK4 portal still needs a guest/existing-account flow and the MPTCP server credential; no two-subflow test has run yet. |
-| ASK4 authorization | The portal redirects to `https://signup.ask4.com`, which serves `/en/wrong-network` unless the request comes from the hotel uplink. It needs a guest/existing-account form and a per-uplink HTTP client; direct subpage GETs on the portal host returned 404. |
+| Real hotel/hotspot payload bond | The hotel path can form a subflow, but the xray/Shadowsocks 4 MB transfer stayed on c03rad0r. Need an MPTCP-capable tunnel client (or AEAD/VLESS server), plus multi-STA support. |
+| ASK4 persistent account | The guest login authorized the MAC with just first/last name; no persistent ASK4 account/email verification was created. The `Create Account` path (`/en/speed`) returned HTTP 500. |
+| `bsbf-mptcp` helper | Calls `ip mp e a ...`, which fails on ip-full 6.18; manual `ip mptcp endpoint add` works. |
 | Production bonding enabled | rc6 is installed with bonding disabled; the working uplink is `c03rad0r`. |
 
 ### Lab blocker
