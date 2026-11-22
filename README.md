@@ -45,6 +45,8 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | `ip-full` present | `ip mptcp limits` returns `add_addr_accepted 0 subflows 2` |
 | Proxy/runtime packages | `xray-core`, `kmod-wireguard`, `wireguard-tools`, `mptcpize` installed |
 | Hotel guest visible from production device | 5 GHz ch36, about -78 dBm, open |
+| Hotel association + DHCP | `10.32.77.42/20`, gateway/DNS `10.32.64.1` |
+| ASK4 portal identified | `gw.customer.ask4.lan/redirect.php` (see [`docs/ASK4-PORTAL.md`](docs/ASK4-PORTAL.md)) |
 | Hotspot visible from production device | 2.4 GHz ch5, about -42 dBm, WPA2/WPA3 transition |
 
 ### Does not work / not yet verified
@@ -56,7 +58,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | Per-uplink policy routing | Missing in `main`; PR #1254 implements it, not merged/tested. |
 | NAT-safe transport through `tollgate config` | `transport`/`tunnels` were not exposed; PR #1255 fixes it, not merged. |
 | `ip-full` on a stock install | Not declared in the package; PR #1256 fixes it, not merged. |
-| Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login, not merged/tested against the real portal. |
+| Captive-portal auto-login | Only a 2-minute human window existed; PR #1253 implements click-through/form login plus the ASK4 `SO_MARK`/venue-DNS fixes, not merged/tested against the real portal. The portal page capture was blocked by hotel beacon loss. |
 | Policy enum through the CLI | Schema said `always`, bond validates `all`; PR #1257 fixes it. |
 | Real hotel/hotspot bond | MT3000 cannot see either AP from its lab position; the real RF test must run on `tollgate-76aa`. |
 | Production install | Not attempted; lab proof and PR review are prerequisites. |

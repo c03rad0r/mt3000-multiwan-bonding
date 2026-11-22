@@ -12,6 +12,8 @@ Baseline inspected: `main` @ `959280db` (v0.6.0-rc4).
 | No guest steering | `ShouldSteer` had no non-test consumer; #972/#974 call steering future work | Bond exists but guest traffic never enters it | #1258 |
 | Naive steering would bypass payment | NDS marks are in `packaging/files/etc/nftables.d/20-nds-enforce.nft`; a CIDR-only rule ignores them | Pre-auth guest traffic would be a free tunnel | #1258 |
 | No captive-portal auto-login | `src/wireless_gateway_manager/portal_login.go` only opens a 2-minute human window | Unattended router cannot pass a hotel portal; bond never forms | #1253 |
+| NDS `ndsOUT` hides the venue portal | `iptables -t nat -L ndsOUT`: router-originated TCP/80 is DNATed to `192.168.99.1:2050` | Login request hits TollGate's own portal, never ASK4. Fixed by `SO_MARK=0x20000` in #1253. | #1253 |
+| Venue DNS not used | Router dnsmasq returned NXDOMAIN for `gw.customer.ask4.lan`; `10.32.64.1` resolves it | Portal host cannot be found on a multi-uplink box. Fixed by `portal_login_dns` in #1253. | #1253 |
 | Single-STA manager | `Connector.Connect` calls `disableOtherSTAInterfaces`; `CleanupStaleSTAs` disables non-active STAs; both `tollgate_sta_2g/5g` use `network=wwan` | Two simultaneous uplinks are dismantled; no product-path 2.4+5 bond | #1259 |
 | Released build predates MPTCP | tag `v0.6.0` has no `src/mptcp_bonding`; `main` is 177 commits ahead | The installed v0.6.0 cannot bond at all | n/a — use a main build |
 | Kernel CVE floor | #1159: fix starts at 6.12.113; 25.12.5=6.12.94, 25.12.6=6.12.112 | MPTCP listener exposure on an untrusted hotel network | production decision |
