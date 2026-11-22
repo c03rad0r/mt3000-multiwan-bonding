@@ -12,7 +12,9 @@ uplink configuration was restored automatically after every probe.
 | Lease | `10.32.77.42/20` |
 | Gateway / DNS | `10.32.64.1` |
 | Portal host | `gw.customer.ask4.lan` → `10.32.64.1` |
-| Portal path | `/redirect.php` |
+| Portal port | **3145** (`http://gw.customer.ask4.lan:3145`) |
+| Redirect path | `/redirect.php` |
+| Redirect page | GET form, no named fields, “Continue online” → portal root |
 | Visible alternatives | `Pendulum VOIP`, `iQ Pendulum Hotel Staff` (WPA PSK) |
 | 5 GHz | `Pendulum Hotel Guest` ch36/ch40/ch44, about -78 dBm |
 
@@ -46,20 +48,37 @@ uplink's resolver. The login client must use `portal_login_dns=10.32.64.1`
 
 ```sh
 tollgate config set upstream_wifi.portal_login_enabled=true
-tollgate config set upstream_wifi.portal_login_mode=form   # or click_through
-tollgate config set upstream_wifi.portal_login_url='http://gw.customer.ask4.lan/redirect.php'
+tollgate config set upstream_wifi.portal_login_mode=click_through
+tollgate config set upstream_wifi.portal_login_url='http://gw.customer.ask4.lan:3145/redirect.php'
 tollgate config set upstream_wifi.portal_login_dns='10.32.64.1'
 tollgate config set upstream_wifi.portal_login_mark=0x20000
-# Only if the portal asks for a room/last name:
-tollgate config set upstream_wifi.portal_login_username='<room-or-name>'
-tollgate config set upstream_wifi.portal_login_extra='room=<room>&lastname=<name>'
 ```
 
-The portal page itself was not captured: the hotel AP showed repeated
-`CTRL-EVENT-BEACON-LOSS` and TCP/80 to the gateway did not answer during the
-probe window. One stable capture is still needed to decide between
-`click_through` and `form`, and to name the exact fields. The engine supports
-both; the URL/DNS/mark above are measured.
+The redirect page is a `GET` form with **no named fields** (“Continue online”).
+PR #1253 now accepts that shape and submits the action with an empty query.
+
+That alone is **not authorization**: it lands on the ASK4 sign-up page
+(`ASK4 - Sign up`) with three paths:
+
+| Path | Link |
+|---|---|
+| Create Account | `/en/speed` |
+| Already Signed Up | `/en/existing-customer` |
+| Guest Login | `/en/guest-signup` |
+
+Direct requests to those paths returned HTTP 404 in the probe, so the portal
+expects a session/cookie or a different flow than a plain GET. A guest login
+recipe (voucher/room/name) or an existing ASK4 account is still needed. The
+engine's `form` mode can carry those fields once the endpoint is known; the
+`click_through` recipe above is the measured first step.
+
+## What was captured
+
+- `/redirect.php` (port 3145) → 1369-byte page with the no-field GET form.
+- Submitting the action `GET /` → 99542-byte `ASK4 - Sign up` page with the
+  three options and the device MAC in the help modal.
+- `/en/speed`, `/en/existing-customer`, `/en/guest-signup` → HTTP 404 from the
+  same host without the portal session.
 
 ## Operational note
 

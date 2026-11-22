@@ -46,7 +46,7 @@ The production device is `tollgate-76aa` (192.168.2.1); the lab DUT is the
 | Proxy/runtime packages | `xray-core`, `kmod-wireguard`, `wireguard-tools`, `mptcpize` installed |
 | Hotel guest visible from production device | 5 GHz ch36, about -78 dBm, open |
 | Hotel association + DHCP | `10.32.77.42/20`, gateway/DNS `10.32.64.1` |
-| ASK4 portal identified | `gw.customer.ask4.lan/redirect.php` (see [`docs/ASK4-PORTAL.md`](docs/ASK4-PORTAL.md)) |
+| ASK4 portal identified | `gw.customer.ask4.lan:3145/redirect.php`; no-field click-through → sign-up page (see [`docs/ASK4-PORTAL.md`](docs/ASK4-PORTAL.md)) |
 | Hotspot visible from production device | 2.4 GHz ch5, about -42 dBm, WPA2/WPA3 transition |
 
 ### Does not work / not yet verified
